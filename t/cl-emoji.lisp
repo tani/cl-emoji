@@ -13,8 +13,8 @@
     (plan (+ 3 (length emoji-list)))
     (dolist (u emoji-list)
       (is (length u) 4))
-    (is "😀" (first (emoji :code "U+1F600")))
-    (is "😁" (first (emoji :name "grinning face with smiling eyes")))
-    (ok (< 0 (length (emoji :annotation "blue"))))))
+    (is "😀" (emoji:code "U+1F600"))
+    (is "😁" (emoji:name "grinning face with smiling eyes"))
+    (ok (< 0 (length (emoji:annot "blue"))))))
 
 (finalize)
