@@ -11,7 +11,7 @@ cl-emoji provides the Unicode emoji characters
 => "😀"
 (emoji:name "grinning face")
 => "😀"
-(emoji:annot :annotation "face")
+(emoji:annot "face")
 => (("😀" "U+1F600" "grinning face" ("face" "grin" "person")) ...)
 ```
 
