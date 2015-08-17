@@ -26,7 +26,7 @@ THE SOFTWARE.
 (defpackage #:cl-emoji
   (:use #:cl)
   (:nicknames #:emoji)
-  (:export emoji))
+  (:export code name annot emoji))
 (in-package #:cl-emoji)
 
 (defun emoji (&key (code nil code-supplied-p)
@@ -36,10 +36,15 @@ THE SOFTWARE.
     (let ((emoji-list (read s)))
       (cond
 	(code-supplied-p
-	 (first (find-if (lambda (c) (string= code (second c))) emoji-list)))
+	 (find-if (lambda (c) (string= code (second c))) emoji-list))
 	(name-supplied-p
-	 (first (find-if (lambda (n) (string= name (third n))) emoji-list)))
+	 (find-if (lambda (n) (string= name (third n))) emoji-list))
 	(annotation-supplied-p
 	 (loop for a in emoji-list
 	       if (member annotation (fourth a) :test #'string=)
 		 collect a))))))
+
+(defun code (code) (first (emoji :code code)))
+(defun name (name) (first (emoji :name name)))
+(defun annot (annot) (emoji :annotation annot))
+
