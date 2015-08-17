@@ -7,16 +7,16 @@ cl-emoji provides the Unicode emoji characters
 
 ```lisp
 (ql:quicklaod :cl-emoji)
-(emoji:emoji :code "U+1F600")
-=> ("😀" "U+1F600" "grinning face" ("face" "grin" "person"))
-(emoji:emoji :name "grinning face")
-=> ("😀" "U+1F600" "grinning face" ("face" "grin" "person"))
+(emoji:code "U+1F600")
+=> "😀"
+(emoji:name "grinning face")
+=> "😀"
 (emoji:annot :annotation "face")
 => (("😀" "U+1F600" "grinning face" ("face" "grin" "person")) ...)
 ```
 
 ```lisp
-(format t "Hello~a!~%" (car (emoji:emoji :code "U+1F600")))
+(format t "Hello~a!~%" (emoji:name "grinning face"))
 => Hello😀!
 ```
 see also [Full Emoji Data](http://unicode.org/emoji/charts/full-emoji-list.html)
