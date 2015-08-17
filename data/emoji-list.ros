@@ -1,0 +1,51 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+
+#|
+Copyright (c) <year> <name>
+
+This software is released under the MIT license:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+|#
+
+(ql:quickload
+ '(:get-element-by
+   :dexador
+   :cl-html-parse)
+ :silent t)
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (loop with url = "http://unicode.org/emoji/charts/full-emoji-list.html"
+	with body = (html-parse:parse-html (dex:get url))
+	with list-tr = (geby:get-elements-by :tag-name :tr body)
+	for tr in (rest list-tr)
+	for td-chars = (geby:get-element-by :class "chars" tr)
+	for td-charcode = (geby:get-element-by :class "code" tr)
+	for td-names = (geby:get-elements-by :class "name" tr)
+	for char = (second td-chars)
+	for code = (second (second td-charcode))
+	for name = (second (car td-names))
+	for annots = (mapcar #'second (remove-if #'stringp (cdadr td-names)))
+	collecting (list char code name annots) into emoji
+	finally (print emoji)))
