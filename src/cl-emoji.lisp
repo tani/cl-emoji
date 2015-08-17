@@ -36,9 +36,9 @@ THE SOFTWARE.
     (let ((emoji-list (read s)))
       (cond
 	(code-supplied-p
-	 (find-if (lambda (c) (string= code (second c))) emoji-list))
+	 (first (find-if (lambda (c) (string= code (second c))) emoji-list)))
 	(name-supplied-p
-	 (find-if (lambda (n) (string= name (third n))) emoji-list))
+	 (first (find-if (lambda (n) (string= name (third n))) emoji-list)))
 	(annotation-supplied-p
 	 (loop for a in emoji-list
 	       if (member annotation (fourth a) :test #'string=)
