@@ -28,11 +28,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 |#
 
-(ql:quickload
- '(:get-element-by
-   :dexador
-   :cl-html-parse)
- :silent t)
+(ql:quickload '(:cl-ppcre
+                :cxml
+                :dexador
+                :flexi-streams
+                :split-sequence
+                :trivial-gray-streams)
+              :silent t)
 
 
 (defstruct emoji
