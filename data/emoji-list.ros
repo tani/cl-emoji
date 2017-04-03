@@ -56,6 +56,28 @@ THE SOFTWARE.
           emoji-version
           *unicode-emoji-test*))
 
+;;;; CLDR
+
+;;; CLDR is a project of The Unicode Consortium, that provides Locale data.
+;;; _Annotations_ of emoji, like `grin` for 😀 (grinning face) and other emoji,
+;;; are defined in CLDR.
+;;;
+;;; For detail, see "CLDR - Unicode Common Locale Data Repository" page.
+;;; --- http://cldr.unicode.org/
+;;;
+;;; CLDR's repository is here: http://unicode.org/repos/cldr/
+;;; Tags named as `release-xx` are contain released data.
+
+(defvar *cldr-annotation-base-url* "http://unicode.org/repos/cldr/tags")
+(defvar *cldr-annotation-version* "release-30")
+(defvar *cldr-annotation-en* "common/annotations/en.xml")
+
+(defun annotation-url (&optional (cldr-version *cldr-annotation-version*))
+  (format nil "~a/~a/~a"
+          *cldr-annotation-base-url*
+          cldr-version
+          *cldr-annotation-en*))
+
 (defun main (&rest argv)
   (declare (ignorable argv))
   (loop with url = "http://unicode.org/emoji/charts/full-emoji-list.html"
