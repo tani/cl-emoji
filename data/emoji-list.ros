@@ -34,6 +34,10 @@ THE SOFTWARE.
    :cl-html-parse)
  :silent t)
 
+
+(defstruct emoji
+  codepoint name characters group subgroup annotation)
+
 ;;;; emoji
 
 ;;; If you need emoji information, see http://www.unicode.org/emoji/index.html
