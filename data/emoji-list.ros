@@ -60,6 +60,47 @@ THE SOFTWARE.
           emoji-version
           *unicode-emoji-test*))
 
+(defvar *group-regex* "^# ((sub)?group): +(.+)$")
+(defvar *emoji-regex* "^(( ?[0-9A-F]+)+) +;.+# ([^ ]+) (.+)$")
+
+(defun make-group-from (line)
+  (let ((group-scanner (ppcre:create-scanner *group-regex*)))
+    (multiple-value-bind (match? group)
+        (ppcre:scan-to-strings group-scanner line)
+      (declare (ignore match?))
+      (when group
+        (cons (aref group 0) (aref group 2))))))
+
+(defun make-emoji-from (line group subgroup)
+  (let ((emoji-scanner (ppcre:create-scanner *emoji-regex*)))
+    (multiple-value-bind (match? emoji)
+        (ppcre:scan-to-strings emoji-scanner line)
+      (declare (ignore match?))
+      (when emoji
+        (make-emoji :codepoint (mapcar (lambda (codepoint) (format nil "U+~a" codepoint))
+                                       (split-sequence:split-sequence #\space (aref emoji 0)))
+                    :name (aref emoji 3)
+                    :characters (aref emoji 2)
+                    :group group
+                    :subgroup subgroup)))))
+
+;;; parse all emoji from emoji-test.txt
+(defun retrieve-emoji-data ()
+  (let ((stream (dex:get (emoji-test-url) :want-stream t)))
+    (loop
+       :for (line eol?) := (multiple-value-list (trivial-gray-streams:stream-read-line stream))
+       :for group := (make-group-from line)
+       :for group-name := (if (and group (string= (car group) "group"))
+                              (cdr group)
+                              group-name)
+       :for subgroup-name := (if (and group (string= (car group) "subgroup"))
+                                 (cdr group)
+                                 subgroup-name)
+       :for emoji := (make-emoji-from line group-name subgroup-name)
+       :until eol?
+       :when emoji
+       :collect emoji)))
+
 ;;;; CLDR
 
 ;;; CLDR is a project of The Unicode Consortium, that provides Locale data.
