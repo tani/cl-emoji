@@ -34,6 +34,28 @@ THE SOFTWARE.
    :cl-html-parse)
  :silent t)
 
+;;;; emoji
+
+;;; If you need emoji information, see http://www.unicode.org/emoji/index.html
+;;;
+;;; "Emoji Charts" shows you service-various emojis with codepoint, name and others.
+;;; --- http://www.unicode.org/emoji/charts/emoji-list.html
+;;;
+;;; See "Unicode Emoji Data Files", if you need handy & hackable whole emoji database.
+;;; --- http://www.unicode.org/Public/emoji/
+;;;
+;;; **`emoji-test.txt` is available later Unicode 4.0**
+
+(defvar *unicode-emoji-data-base-url* "http://www.unicode.org/Public/emoji")
+(defvar *unicode-emoji-version* "4.0")
+(defvar *unicode-emoji-test* "emoji-test.txt")
+
+(defun emoji-test-url (&optional (emoji-version *unicode-emoji-version*))
+  (format nil "~a/~a/~a"
+          *unicode-emoji-data-base-url*
+          emoji-version
+          *unicode-emoji-test*))
+
 (defun main (&rest argv)
   (declare (ignorable argv))
   (loop with url = "http://unicode.org/emoji/charts/full-emoji-list.html"
