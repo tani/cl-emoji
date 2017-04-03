@@ -123,6 +123,58 @@ THE SOFTWARE.
           cldr-version
           *cldr-annotation-en*))
 
+(defstruct shortname
+  character shortname)
+(defstruct annotation
+  character annotation)
+
+;;; > With an attribute type="tts", the value is a short name, such as one that can be used for text-to-speech.
+;;; --- http://www.unicode.org/reports/tr35/tr35-45/tr35-general.html#Annotations
+(defun shortname-node-p (node)
+  (and (dom:has-attribute node "type")
+       (string= (dom:get-attribute node "type") "tts")))
+
+(defun shortname (node)
+  (let ((character (dom:get-attribute node "cp"))
+        (shortname (dom:data (find-if #'dom:text-node-p (dom:child-nodes node)))))
+    (make-shortname :character character
+                    :shortname shortname)))
+
+(defun annotation-node-p (node)
+  (not (dom:has-attribute node "type")))
+
+(defun annotation (node)
+  (flet ((get-annotation (str)
+           (mapcar (lambda (s) (string-trim " " s))
+                   (split-sequence:split-sequence #\| str))))
+    (let ((character (dom:get-attribute node "cp"))
+          (annot-string (dom:data (find-if #'dom:text-node-p (dom:child-nodes node)))))
+      (make-annotation :character character
+                      :annotation (get-annotation annot-string)))))
+
+(defun retrieve-emoji-annotation ()
+  (let ((url (annotation-url))
+        (shortname nil)
+        (annotation nil))
+    (flet ((resolver (pubid sysid)
+             (declare (ignore pubid))
+             (flex:make-in-memory-input-stream
+              (dex:get (format nil "~a/~a"
+                               (subseq url 0 (position #\/ url :from-end t ))
+                               sysid)
+                       :force-binary t))))
+      (loop
+         :for node :across (dom:get-elements-by-tag-name
+                                  (cxml:parse (dex:get url)
+                                              (cxml-dom:make-dom-builder)
+                                              :entity-resolver #'resolver)
+                                  "annotation")
+         :when (shortname-node-p node)
+         :do (push (shortname node) shortname)
+         :when (annotation-node-p node)
+         :do (push (annotation node) annotation)))
+    annotation))
+
 (defun main (&rest argv)
   (declare (ignorable argv))
   (loop with url = "http://unicode.org/emoji/charts/full-emoji-list.html"
