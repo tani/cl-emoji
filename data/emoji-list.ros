@@ -179,16 +179,4 @@ THE SOFTWARE.
 
 (defun main (&rest argv)
   (declare (ignorable argv))
-  (loop with url = "http://unicode.org/emoji/charts/full-emoji-list.html"
-	with body = (html-parse:parse-html (dex:get url))
-	with list-tr = (geby:get-elements-by :tag-name :tr body)
-	for tr in (rest list-tr)
-	for td-chars = (geby:get-element-by :class "chars" tr)
-	for td-charcode = (geby:get-element-by :class "code" tr)
-	for td-names = (geby:get-elements-by :class "name" tr)
-	for char = (second td-chars)
-	for code = (second (second td-charcode))
-	for name = (second (car td-names))
-	for annots = (mapcar #'second (remove-if #'stringp (cdadr td-names)))
-	collecting (list char code name annots) into emoji
-	finally (print emoji)))
+  nil)
