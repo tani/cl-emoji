@@ -179,4 +179,19 @@ THE SOFTWARE.
 
 (defun main (&rest argv)
   (declare (ignorable argv))
-  nil)
+  (let ((emoji (retrieve-emoji-data))
+        (annotation (retrieve-emoji-annotation)))
+    (loop
+       :for annot :in annotation
+       :do (let ((e (find (annotation-character annot) emoji
+                          :key #'emoji-characters
+                          :test #'string=)))
+             (when e
+               (setf (emoji-annotation e) (annotation-annotation annot)))))
+    (print (mapcar (lambda (e) (list (emoji-characters e)
+                                     (emoji-codepoint e)
+                                     (emoji-name e)
+                                     (emoji-annotation e)
+                                     (emoji-group e)
+                                     (emoji-subgroup e)))
+                   emoji))))
