@@ -87,8 +87,8 @@ THE SOFTWARE.
                     :subgroup subgroup)))))
 
 ;;; parse all emoji from emoji-test.txt
-(defun retrieve-emoji-data ()
-  (let ((stream (dex:get (emoji-test-url) :want-stream t)))
+(defun retrieve-emoji-data (emoji-version)
+  (let ((stream (dex:get (emoji-test-url emoji-version) :want-stream t)))
     (loop
        :for (line eol?) := (multiple-value-list (trivial-gray-streams:stream-read-line stream))
        :for group := (make-group-from line)
@@ -154,8 +154,8 @@ THE SOFTWARE.
       (make-annotation :character character
                       :annotation (get-annotation annot-string)))))
 
-(defun retrieve-emoji-annotation ()
-  (let ((url (annotation-url))
+(defun retrieve-emoji-annotation (cldr-version)
+  (let ((url (annotation-url cldr-version))
         (shortname nil)
         (annotation nil))
     (flet ((resolver (pubid sysid)
@@ -192,9 +192,13 @@ This \"Data File\" is licensed under Unicode License.
 ")
 
 (defun main (&rest argv)
-  (declare (ignorable argv))
-  (let ((emoji (retrieve-emoji-data))
-        (annotation (retrieve-emoji-annotation)))
+  (when (< (length argv) 2)
+    (format t "usage: emoji-list.ros [-l] EMOJI_VERSION CLDR_VERSION~%~%")
+    (uiop:quit 1))
+  (let* ((emoji-version (nth 0 argv))
+         (cldr-version (nth 1 argv))
+         (emoji (retrieve-emoji-data emoji-version))
+         (annotation (retrieve-emoji-annotation cldr-version)))
     (loop
        :for annot :in annotation
        :do (let ((e (find (annotation-character annot) emoji
@@ -202,6 +206,9 @@ This \"Data File\" is licensed under Unicode License.
                           :test #'string=)))
              (when e
                (setf (emoji-annotation e) (annotation-annotation annot)))))
+    (format t *copyright-template*
+            (emoji-test-url emoji-version)
+            (annotation-url cldr-version))
     (print (mapcar (lambda (e) (list (emoji-characters e)
                                      (emoji-codepoint e)
                                      (emoji-name e)
