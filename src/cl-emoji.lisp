@@ -29,20 +29,33 @@ THE SOFTWARE.
   (:export code name annot emoji))
 (in-package #:cl-emoji)
 
+(defvar *default-emoji-version* "4.0")
+(defvar *default-cldr-version* "release-30")
+(defvar *emoji-list* nil)
+
+(defun load-emoji (&optional
+                     (emoji-version *default-emoji-version*)
+                     (cldr-version *default-cldr-version*))
+  (with-open-file (s (asdf:system-relative-pathname
+                      :cl-emoji (pathname (format nil "data/emoji_~a_~a.lisp"
+                                                  emoji-version cldr-version))))
+    (setf *emoji-list* (read s))))
+
+;;; initialize *emoji-list* with default versions.
+(load-emoji)
+
 (defun emoji (&key (code nil code-supplied-p)
 		(name nil name-supplied-p)
 		(annotation nil annotation-supplied-p))
-  (with-open-file (s (asdf:system-relative-pathname :cl-emoji #p"data/emoji-list.lisp"))
-    (let ((emoji-list (read s)))
-      (cond
-	(code-supplied-p
-	 (find-if (lambda (c) (string= code (second c))) emoji-list))
-	(name-supplied-p
-	 (find-if (lambda (n) (string= name (third n))) emoji-list))
-	(annotation-supplied-p
-	 (loop for a in emoji-list
-	       if (member annotation (fourth a) :test #'string=)
-		 collect a))))))
+  (cond
+    (code-supplied-p
+     (find-if (lambda (c) (equalp code (second c))) *emoji-list*))
+    (name-supplied-p
+     (find-if (lambda (n) (string= name (third n))) *emoji-list*))
+    (annotation-supplied-p
+     (loop for a in *emoji-list*
+        if (member annotation (fourth a) :test #'string=)
+        collect a))))
 
 (defun code (code) (first (emoji :code code)))
 (defun name (name) (first (emoji :name name)))
