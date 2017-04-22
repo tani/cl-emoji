@@ -191,7 +191,28 @@ This \"Data File\" is licensed under Unicode License.
 
 ")
 
+(defun show-versions ()
+  (flet ((grep-regexp (target regex)
+           (with-input-from-string (in target)
+             (loop
+                :for line := (read-line in nil :eof)
+                :until (eq line :eof)
+                :for version := (multiple-value-bind (matched group)
+                                    (ppcre:scan-to-strings regex line)
+                                  (when matched (aref group 0)))
+                :when version
+                :do (format t "  ~a~%" version)))))
+    (format t "Emoji versions:~%")
+    (grep-regexp (dex:get *unicode-emoji-data-base-url*)
+                 "folder\.gif.+href=\"([0-9.]+)/\"")
+    (format t "CLDR versions:~%")
+    (grep-regexp (dex:get *cldr-annotation-base-url*)
+                 ">(release-[0-9]+)/<")))
+
 (defun main (&rest argv)
+  (when (member "-l" argv :test #'string=)
+    (show-versions)
+    (uiop:quit 0))
   (when (< (length argv) 2)
     (format t "usage: emoji-list.ros [-l] EMOJI_VERSION CLDR_VERSION~%~%")
     (uiop:quit 1))
