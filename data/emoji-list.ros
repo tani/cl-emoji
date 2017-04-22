@@ -177,6 +177,17 @@ THE SOFTWARE.
          :do (push (annotation node) annotation)))
     annotation))
 
+(defvar *copyright-template*
+  "#|
+Copyright 1991-2015 Unicode, Inc.
+Source url: http://unicode.org/emoji/charts/full-emoji-list.html
+
+Source file is converted for CommonLisp by ./emoji-list.ros (Masaya TANIGUCHI)
+This \"Data File\" is licensed under Unicode License.
+|#
+
+")
+
 (defun main (&rest argv)
   (declare (ignorable argv))
   (let ((emoji (retrieve-emoji-data))
