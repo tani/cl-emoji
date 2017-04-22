@@ -36,10 +36,12 @@ THE SOFTWARE.
 (defun load-emoji (&optional
                      (emoji-version *default-emoji-version*)
                      (cldr-version *default-cldr-version*))
-  (with-open-file (s (asdf:system-relative-pathname
-                      :cl-emoji (pathname (format nil "data/emoji_~a_~a.lisp"
-                                                  emoji-version cldr-version))))
-    (setf *emoji-list* (read s))))
+  (let ((emoji-list-path (asdf:system-relative-pathname
+                          :cl-emoji (pathname (format nil "data/emoji_~a_~a.lisp"
+                                                      emoji-version cldr-version)))))
+    (with-open-file (s emoji-list-path)
+      (setf *emoji-list* (read s))
+      emoji-list-path)))
 
 ;;; initialize *emoji-list* with default versions.
 (load-emoji)
