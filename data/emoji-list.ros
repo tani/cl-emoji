@@ -179,10 +179,13 @@ THE SOFTWARE.
 
 (defvar *copyright-template*
   "#|
-Copyright 1991-2015 Unicode, Inc.
-Source url: http://unicode.org/emoji/charts/full-emoji-list.html
+Copyright 1991-2017 Unicode, Inc.
+Sources of emoji and annotations are bellow:
 
-Source file is converted for CommonLisp by ./emoji-list.ros (Masaya TANIGUCHI)
+- ~a
+- ~a
+
+This file is converted for Common Lisp by ./emoji-list.ros (Masaya TANIGUCHI)
 This \"Data File\" is licensed under Unicode License.
 |#
 
