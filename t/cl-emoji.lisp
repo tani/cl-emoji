@@ -9,7 +9,7 @@
 
 (with-open-file (s (asdf:system-relative-pathname 
 		    :cl-emoji (pathname (format nil "data/emoji_~a.lisp"
-                                        cl-emoji::*default-version*))))
+                                        cl-emoji::*current-version*))))
   (let ((emoji-list (read s)))
     (plan (+ 3 (length emoji-list)))
     (dolist (u emoji-list)
