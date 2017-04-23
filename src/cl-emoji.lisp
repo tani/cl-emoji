@@ -26,7 +26,7 @@ THE SOFTWARE.
 (defpackage #:cl-emoji
   (:use #:cl)
   (:nicknames #:emoji)
-  (:export code name annot +versions+ *current-version*))
+  (:export code name annot group subgroup +versions+ *current-version*))
 (in-package #:cl-emoji)
 
 (defvar +versions+ '("4.0_release-30"
@@ -50,5 +50,15 @@ THE SOFTWARE.
 
 (defun annot (annot)
   (loop for a in (load-emoji)
-     if (member annot (fourth a) :test #'string=)
-     collect a))
+        if (member annot (fourth a) :test #'string=)
+        collect a))
+
+(defun group (group)
+  (loop for g in (load-emoji)
+        if (string= group (fifth g))
+        collect g))
+
+(defun subgroup (subgroup)
+  (loop for sg in (load-emoji)
+        if (string= subgroup (sixth sg))
+        collect sg))
