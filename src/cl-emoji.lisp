@@ -26,18 +26,16 @@ THE SOFTWARE.
 (defpackage #:cl-emoji
   (:use #:cl)
   (:nicknames #:emoji)
-  (:export code name annot))
+  (:export code name annot +versions+))
 (in-package #:cl-emoji)
 
-(defvar *default-emoji-version* "4.0")
-(defvar *default-cldr-version* "release-30")
+(defvar +versions+ '("4.0_release-30"
+                     "5.0_release-31"))
+(defvar *default-version* "4.0_release-30")
 
-(defun load-emoji (&optional
-                     (emoji-version *default-emoji-version*)
-                     (cldr-version *default-cldr-version*))
+(defun load-emoji (&optional (version *default-version*))
   (let ((emoji-list-path (asdf:system-relative-pathname
-                          :cl-emoji (pathname (format nil "data/emoji_~a_~a.lisp"
-                                                      emoji-version cldr-version)))))
+                          :cl-emoji (pathname (format nil "data/emoji_~a.lisp" version)))))
     (with-open-file (s emoji-list-path)
       (read s))))
 
