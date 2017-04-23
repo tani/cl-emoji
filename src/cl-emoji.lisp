@@ -26,12 +26,12 @@ THE SOFTWARE.
 (defpackage #:cl-emoji
   (:use #:cl)
   (:nicknames #:emoji)
-  (:export code name annot +versions+))
+  (:export code name annot +versions+ +default-version+))
 (in-package #:cl-emoji)
 
 (defvar +versions+ '("4.0_release-30"
                      "5.0_release-31"))
-(defvar *default-version* "4.0_release-30")
+(defvar +default-version+ "4.0_release-30")
 
 (defun load-emoji (&optional (version *default-version*))
   (let ((emoji-list-path (asdf:system-relative-pathname
