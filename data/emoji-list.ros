@@ -28,24 +28,212 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 |#
 
-(ql:quickload
- '(:get-element-by
-   :dexador
-   :cl-html-parse)
- :silent t)
+(ql:quickload '(:cl-ppcre
+                :cxml
+                :dexador
+                :flexi-streams
+                :split-sequence
+                :trivial-gray-streams)
+              :silent t)
+
+
+(defstruct emoji
+  codepoint name characters group subgroup annotation)
+
+;;;; emoji
+
+;;; If you need emoji information, see http://www.unicode.org/emoji/index.html
+;;;
+;;; "Emoji Charts" shows you service-various emojis with codepoint, name and others.
+;;; --- http://www.unicode.org/emoji/charts/emoji-list.html
+;;;
+;;; See "Unicode Emoji Data Files", if you need handy & hackable whole emoji database.
+;;; --- http://www.unicode.org/Public/emoji/
+;;;
+;;; **`emoji-test.txt` is available later Unicode 4.0**
+
+(defvar *unicode-emoji-data-base-url* "http://www.unicode.org/Public/emoji")
+(defvar *unicode-emoji-version* "4.0")
+(defvar *unicode-emoji-test* "emoji-test.txt")
+
+(defun emoji-test-url (&optional (emoji-version *unicode-emoji-version*))
+  (format nil "~a/~a/~a"
+          *unicode-emoji-data-base-url*
+          emoji-version
+          *unicode-emoji-test*))
+
+(defvar *group-regex* "^# ((sub)?group): +(.+)$")
+(defvar *emoji-regex* "^(( ?[0-9A-F]+)+) +;.+# ([^ ]+) (.+)$")
+
+(defun make-group-from (line)
+  (let ((group-scanner (ppcre:create-scanner *group-regex*)))
+    (multiple-value-bind (match? group)
+        (ppcre:scan-to-strings group-scanner line)
+      (declare (ignore match?))
+      (when group
+        (cons (aref group 0) (aref group 2))))))
+
+(defun make-emoji-from (line group subgroup)
+  (let ((emoji-scanner (ppcre:create-scanner *emoji-regex*)))
+    (multiple-value-bind (match? emoji)
+        (ppcre:scan-to-strings emoji-scanner line)
+      (declare (ignore match?))
+      (when emoji
+        (make-emoji :codepoint (mapcar (lambda (codepoint) (format nil "U+~a" codepoint))
+                                       (split-sequence:split-sequence #\space (aref emoji 0)))
+                    :name (aref emoji 3)
+                    :characters (aref emoji 2)
+                    :group group
+                    :subgroup subgroup)))))
+
+;;; parse all emoji from emoji-test.txt
+(defun retrieve-emoji-data (emoji-version)
+  (let ((stream (dex:get (emoji-test-url emoji-version) :want-stream t)))
+    (loop
+       :for (line eol?) := (multiple-value-list (trivial-gray-streams:stream-read-line stream))
+       :for group := (make-group-from line)
+       :for group-name := (if (and group (string= (car group) "group"))
+                              (cdr group)
+                              group-name)
+       :for subgroup-name := (if (and group (string= (car group) "subgroup"))
+                                 (cdr group)
+                                 subgroup-name)
+       :for emoji := (make-emoji-from line group-name subgroup-name)
+       :until eol?
+       :when emoji
+       :collect emoji)))
+
+;;;; CLDR
+
+;;; CLDR is a project of The Unicode Consortium, that provides Locale data.
+;;; _Annotations_ of emoji, like `grin` for 😀 (grinning face) and other emoji,
+;;; are defined in CLDR.
+;;;
+;;; For detail, see "CLDR - Unicode Common Locale Data Repository" page.
+;;; --- http://cldr.unicode.org/
+;;;
+;;; CLDR's repository is here: http://unicode.org/repos/cldr/
+;;; Tags named as `release-xx` are contain released data.
+
+(defvar *cldr-annotation-base-url* "http://unicode.org/repos/cldr/tags")
+(defvar *cldr-annotation-version* "release-30")
+(defvar *cldr-annotation-en* "common/annotations/en.xml")
+
+(defun annotation-url (&optional (cldr-version *cldr-annotation-version*))
+  (format nil "~a/~a/~a"
+          *cldr-annotation-base-url*
+          cldr-version
+          *cldr-annotation-en*))
+
+(defstruct shortname
+  character shortname)
+(defstruct annotation
+  character annotation)
+
+;;; > With an attribute type="tts", the value is a short name, such as one that can be used for text-to-speech.
+;;; --- http://www.unicode.org/reports/tr35/tr35-45/tr35-general.html#Annotations
+(defun shortname-node-p (node)
+  (and (dom:has-attribute node "type")
+       (string= (dom:get-attribute node "type") "tts")))
+
+(defun shortname (node)
+  (let ((character (dom:get-attribute node "cp"))
+        (shortname (dom:data (find-if #'dom:text-node-p (dom:child-nodes node)))))
+    (make-shortname :character character
+                    :shortname shortname)))
+
+(defun annotation-node-p (node)
+  (not (dom:has-attribute node "type")))
+
+(defun annotation (node)
+  (flet ((get-annotation (str)
+           (mapcar (lambda (s) (string-trim " " s))
+                   (split-sequence:split-sequence #\| str))))
+    (let ((character (dom:get-attribute node "cp"))
+          (annot-string (dom:data (find-if #'dom:text-node-p (dom:child-nodes node)))))
+      (make-annotation :character character
+                      :annotation (get-annotation annot-string)))))
+
+(defun retrieve-emoji-annotation (cldr-version)
+  (let ((url (annotation-url cldr-version))
+        (shortname nil)
+        (annotation nil))
+    (flet ((resolver (pubid sysid)
+             (declare (ignore pubid))
+             (flex:make-in-memory-input-stream
+              (dex:get (format nil "~a/~a"
+                               (subseq url 0 (position #\/ url :from-end t ))
+                               sysid)
+                       :force-binary t))))
+      (loop
+         :for node :across (dom:get-elements-by-tag-name
+                                  (cxml:parse (dex:get url)
+                                              (cxml-dom:make-dom-builder)
+                                              :entity-resolver #'resolver)
+                                  "annotation")
+         :when (shortname-node-p node)
+         :do (push (shortname node) shortname)
+         :when (annotation-node-p node)
+         :do (push (annotation node) annotation)))
+    annotation))
+
+(defvar *copyright-template*
+  "#|
+Copyright 1991-2017 Unicode, Inc.
+Sources of emoji and annotations are bellow:
+
+- ~a
+- ~a
+
+This file is converted for Common Lisp by ./emoji-list.ros (Masaya TANIGUCHI)
+This \"Data File\" is licensed under Unicode License.
+|#
+
+")
+
+(defun show-versions ()
+  (flet ((grep-regexp (target regex)
+           (with-input-from-string (in target)
+             (loop
+                :for line := (read-line in nil :eof)
+                :until (eq line :eof)
+                :for version := (multiple-value-bind (matched group)
+                                    (ppcre:scan-to-strings regex line)
+                                  (when matched (aref group 0)))
+                :when version
+                :do (format t "  ~a~%" version)))))
+    (format t "Emoji versions:~%")
+    (grep-regexp (dex:get *unicode-emoji-data-base-url*)
+                 "folder\.gif.+href=\"([0-9.]+)/\"")
+    (format t "CLDR versions:~%")
+    (grep-regexp (dex:get *cldr-annotation-base-url*)
+                 ">(release-[0-9]+)/<")))
 
 (defun main (&rest argv)
-  (declare (ignorable argv))
-  (loop with url = "http://unicode.org/emoji/charts/full-emoji-list.html"
-	with body = (html-parse:parse-html (dex:get url))
-	with list-tr = (geby:get-elements-by :tag-name :tr body)
-	for tr in (rest list-tr)
-	for td-chars = (geby:get-element-by :class "chars" tr)
-	for td-charcode = (geby:get-element-by :class "code" tr)
-	for td-names = (geby:get-elements-by :class "name" tr)
-	for char = (second td-chars)
-	for code = (second (second td-charcode))
-	for name = (second (car td-names))
-	for annots = (mapcar #'second (remove-if #'stringp (cdadr td-names)))
-	collecting (list char code name annots) into emoji
-	finally (print emoji)))
+  (when (member "-l" argv :test #'string=)
+    (show-versions)
+    (uiop:quit 0))
+  (when (< (length argv) 2)
+    (format t "usage: emoji-list.ros [-l] EMOJI_VERSION CLDR_VERSION~%~%")
+    (uiop:quit 1))
+  (let* ((emoji-version (nth 0 argv))
+         (cldr-version (nth 1 argv))
+         (emoji (retrieve-emoji-data emoji-version))
+         (annotation (retrieve-emoji-annotation cldr-version)))
+    (loop
+       :for annot :in annotation
+       :do (let ((e (find (annotation-character annot) emoji
+                          :key #'emoji-characters
+                          :test #'string=)))
+             (when e
+               (setf (emoji-annotation e) (annotation-annotation annot)))))
+    (format t *copyright-template*
+            (emoji-test-url emoji-version)
+            (annotation-url cldr-version))
+    (print (mapcar (lambda (e) (list (emoji-characters e)
+                                     (emoji-codepoint e)
+                                     (emoji-name e)
+                                     (emoji-annotation e)
+                                     (emoji-group e)
+                                     (emoji-subgroup e)))
+                   emoji))))

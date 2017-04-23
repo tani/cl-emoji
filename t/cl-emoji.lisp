@@ -8,12 +8,13 @@
 ;; NOTE: To run this test file, execute `(asdf:test-system :cl-emoji)' in your Lisp.
 
 (with-open-file (s (asdf:system-relative-pathname 
-		    :cl-emoji #p"data/emoji-list.lisp"))
+		    :cl-emoji (pathname (format nil "data/emoji_~a.lisp"
+                                        cl-emoji::*default-version*))))
   (let ((emoji-list (read s)))
     (plan (+ 3 (length emoji-list)))
     (dolist (u emoji-list)
-      (is (length u) 4))
-    (is "😀" (emoji:code "U+1F600"))
+      (is (length u) 6))
+    (is "😀" (emoji:code '("U+1F600")))
     (is "😁" (emoji:name "grinning face with smiling eyes"))
     (ok (< 0 (length (emoji:annot "blue"))))))
 
