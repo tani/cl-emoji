@@ -8,9 +8,8 @@
 ;; NOTE: To run this test file, execute `(asdf:test-system :cl-emoji)' in your Lisp.
 
 (with-open-file (s (asdf:system-relative-pathname 
-		    :cl-emoji (pathname (format nil "data/emoji_~a_~a.lisp"
-                                        cl-emoji::*default-emoji-version*
-                                        cl-emoji::*default-cldr-version*))))
+		    :cl-emoji (pathname (format nil "data/emoji_~a.lisp"
+                                        cl-emoji::*default-version*))))
   (let ((emoji-list (read s)))
     (plan (+ 3 (length emoji-list)))
     (dolist (u emoji-list)
