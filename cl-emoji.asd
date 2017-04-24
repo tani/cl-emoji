@@ -15,9 +15,9 @@
 (in-package :cl-emoji-asd)
 
 (defsystem cl-emoji
-  :version "0.1"
+  :version "0.2"
   :author "Masaya TANIGUCHI"
-  :license ""
+  :license "MIT"
   :depends-on ()
   :components ((:module "src"
                 :components
