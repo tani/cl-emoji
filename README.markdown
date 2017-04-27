@@ -44,6 +44,25 @@ CL-USER> (let ((cl-emoji:*current-version* (second cl-emoji:+versions+)))
  ...)
 ```
 
+According to **PR #xx**, we can list annotations, groups and subgroups.
+Cause of this now we can know what is keyword when searching with `emoji:annot`.
+
+```lisp
+CL-USER> (emoji:list-subgroups)
+("face-positive" "face-neutral" "face-negative" "face-role" "face-sick"
+ "creature-face" "cat-face" "monkey-face" "person" "person-role"
+ ...)
+CL-USER> (emoji:subgroup (first (emoji:list-subgroups)))
+(("😀" ("U+1F600") "grinning face" ("face" "grin") "Smileys & People"
+  "face-positive")
+ ("😁" ("U+1F601") "grinning face with smiling eyes"
+  ("eye" "face" "grin" "smile") "Smileys & People" "face-positive")
+ ("😂" ("U+1F602") "face with tears of joy" ("face" "joy" "laugh" "tear")
+  "Smileys & People" "face-positive")
+ ("🤣" ("U+1F923") "rolling on the floor laughing"
+ ...))
+```
+
 ### :smile: Groups and Subgroups
 
 Those are appears in [Full Emoji Data](http://www.unicode.org/emoji/charts-beta/full-emoji-list.html), for instance `Smileys & People` is a group and `face-positive` is a subgroup.
