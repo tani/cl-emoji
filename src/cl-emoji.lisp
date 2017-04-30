@@ -63,10 +63,10 @@ THE SOFTWARE.
     (apply function (append args1 args2))))
 
 (defun emoji-apropos (key value &key test)
-  (find-if (lambda (r) (test value (getf r key))) (load-emoji)))
+  (find-if (lambda (r) (funcall test value (getf r key))) (load-emoji)))
 
 (defun emoji-apropos-list (key value &key test)
-  (loop for r in (load-emoji) if (test value (getf r key)) collect r))
+  (loop for r in (load-emoji) if (funcall test value (getf r key)) collect r))
 
 (defun codepoint (code)
   (first (emoji-apropos :codepoint code :test #'equalp)))
@@ -92,17 +92,24 @@ THE SOFTWARE.
 (defun group-apropos (keyword)
   (let ((filter (bind2 #'getf :group))
 	(result (emoji-apropos-list :group keyword :test #'search)))
-    (format t "~{~a~%~}" (mapcar filter result))))
+    (format t "~{~a~%~}"
+	    (remove-duplicates
+	     (mapcar filter result)
+	     :test #'string=))))
 
 (defun subgroup-apropos (keyword)
   (let ((filter (bind2 #'getf :subgroup))
 	(result (emoji-apropos-list :subgroup keyword :test #'search)))
-    (format t "~{~a~%~}" (mapcar filter result))))
+    (format t "~{~a~%~}"
+	    (remove-duplicates
+	     (mapcar filter result)
+	     :test #'string=))))
 
 (defun annotation-apropos (keyword)
-  (let ((filter (bind2 #'getf :annotation))
-	(test   (bind1 #'search keyword))
-	(result (remove-duplicate
-		 (apply #'append (mapcar filter (load-emoji)))
-		 :test #'string=)))
-    (format t "~{~a~%~}" (remove-if-not test result))))
+  (let* ((filter (bind2 #'getf :annotation))
+	 (test   (bind1 #'search keyword))
+	 (result (apply #'append (mapcar filter (load-emoji)))))
+    (format t "~{~a~%~}"
+	    (remove-duplicates
+	     (remove-if-not test result)
+	     :test #'string=))))
