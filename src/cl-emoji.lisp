@@ -26,7 +26,17 @@ THE SOFTWARE.
 (defpackage #:cl-emoji
   (:use #:cl)
   (:nicknames #:emoji)
-  (:export code name annot group subgroup +versions+ *current-version*))
+  (:export
+   codepoint
+   name
+   annotation
+   group
+   subgroup
+   group-apropos
+   subgroup-apropos
+   annotation-apropos
+   +versions+
+   *current-version*))
 (in-package #:cl-emoji)
 
 (defvar +versions+ '("4.0_release-30"
@@ -44,7 +54,11 @@ THE SOFTWARE.
 	  (setf *emoji-cache* (read s))
 	  *emoji-cache*))))
 
-(defun bind (function &rest args2)
+(defun bind1 (function &rest args1)
+  (lambda (&rest args2)
+    (apply function (append args1 args2))))
+
+(defun bind2 (function &rest args2)
   (lambda (&rest args1)
     (apply function (append args1 args2))))
 
@@ -54,16 +68,16 @@ THE SOFTWARE.
 (defun emoji-apropos-list (key value &key test)
   (loop for r in (load-emoji) if (test value (getf r key)) collect r))
 
-(defun code (code)
+(defun codepoint (code)
   (first (emoji-apropos :codepoint code :test #'equalp)))
 
 (defun name (name)
   (first (emoji-apropos :name name :test #'string=)))
 
-(defun annot (annot)
+(defun annotation (annot)
   (emoji-apropos-list
    :annotation annot
-   :test (bind #'member :test #'string=)))
+   :test (bind2 #'member :test #'string=)))
 
 (defun group (group)
   (emoji-apropos-list
@@ -74,3 +88,21 @@ THE SOFTWARE.
   (emoji-apropos-list
    :subgroup subgroup
    :test #'string=))
+
+(defun group-apropos (keyword)
+  (let ((filter (bind2 #'getf :group))
+	(result (emoji-apropos-list :group keyword :test #'search)))
+    (format t "~{~a~%~}" (mapcar filter result))))
+
+(defun subgroup-apropos (keyword)
+  (let ((filter (bind2 #'getf :subgroup))
+	(result (emoji-apropos-list :subgroup keyword :test #'search)))
+    (format t "~{~a~%~}" (mapcar filter result))))
+
+(defun annotation-apropos (keyword)
+  (let ((filter (bind2 #'getf :annotation))
+	(test   (bind1 #'search keyword))
+	(result (remove-duplicate
+		 (apply #'append (mapcar filter (load-emoji)))
+		 :test #'string=)))
+    (format t "~{~a~%~}" (remove-if-not test result))))
