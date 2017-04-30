@@ -43,16 +43,12 @@ THE SOFTWARE.
                      "5.0_release-31"))
 (defvar *current-version* "4.0_release-30")
 
-(defvar *emoji-cache* nil)
-
 (defun load-emoji ()
-  (if *emoji-cache* *emoji-cache*
-      (let ((emoji-list-path (asdf:system-relative-pathname
-			      :cl-emoji (pathname (format nil "data/emoji_~a.lisp"
-							  *current-version*)))))
-	(with-open-file (s emoji-list-path)
-	  (setf *emoji-cache* (read s))
-	  *emoji-cache*))))
+  (let ((emoji-list-path (asdf:system-relative-pathname
+			  :cl-emoji (pathname (format nil "data/emoji_~a.lisp"
+						      *current-version*)))))
+    (with-open-file (s emoji-list-path)
+      (read s))))
 
 (defun bind1 (function &rest args1)
   (lambda (&rest args2)
