@@ -40,25 +40,33 @@ THE SOFTWARE.
     (with-open-file (s emoji-list-path)
       (read s))))
 
+(defun bind (function &rest args2)
+  (lambda (&rest args1)
+    (apply function (append args1 args2))))
+
+(defun emoji-apropos (key value &key test)
+  (find-if (lambda (r) (test value (getf r key))) (load-emoji)))
+
+(defun emoji-apropos-list (key value &key test)
+  (loop for r in (load-emoji) if (test value (getf r key)) collect r))
+
 (defun code (code)
-  (first (find-if (lambda (c) (equalp code (second c)))
-                  (load-emoji))))
+  (first (emoji-apropos :codepoint code :test #'equalp)))
 
 (defun name (name)
-  (first (find-if (lambda (n) (string= name (third n)))
-                  (load-emoji))))
+  (first (emoji-apropos :name name :test #'string=)))
 
 (defun annot (annot)
-  (loop for a in (load-emoji)
-        if (member annot (fourth a) :test #'string=)
-        collect a))
+  (emoji-apropos-list
+   :annotation annot
+   :test (bind #'member :test #'string=)))
 
 (defun group (group)
-  (loop for g in (load-emoji)
-        if (string= group (fifth g))
-        collect g))
+  (emoji-apropos-list
+   :group group
+   :test #'string=))
 
 (defun subgroup (subgroup)
-  (loop for sg in (load-emoji)
-        if (string= subgroup (sixth sg))
-        collect sg))
+  (emoji-apropos-list
+   :subgroup subgroup
+   :test #'string=))
