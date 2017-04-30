@@ -62,7 +62,7 @@ THE SOFTWARE.
   (find-if (lambda (r) (funcall test value (getf r key))) (load-emoji)))
 
 (defun emoji-apropos-list (key value &key test)
-  (loop for r in (load-emoji) if (funcall test value (getf r key)) collect r))
+  (remove-if-not (lambda (r) (funcall test value (getf r key))) (load-emoji)))
 
 (defun codepoint (code)
   (first (emoji-apropos :codepoint code :test #'equalp)))
