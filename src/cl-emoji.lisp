@@ -26,7 +26,9 @@ THE SOFTWARE.
 (defpackage #:cl-emoji
   (:use #:cl)
   (:nicknames #:emoji)
-  (:export code name annot group subgroup +versions+ *current-version*))
+  (:export code name annot group subgroup
+           list-annots list-groups list-subgroups
+           +versions+ *current-version*))
 (in-package #:cl-emoji)
 
 (defvar +versions+ '("4.0_release-30"
@@ -62,3 +64,19 @@ THE SOFTWARE.
   (loop for sg in (load-emoji)
         if (string= subgroup (sixth sg))
         collect sg))
+
+(defun list-annots ()
+  (loop
+     for annots in (mapcar #'fourth (load-emoji))
+     with annotations = nil
+     finally (return-from list-annots annotations)
+     when annots
+     do (loop
+           for a in annots
+           do (setf annotations (adjoin a annotations :test #'string=)))))
+
+(defun list-groups ()
+  (remove-duplicates (mapcar #'fifth (load-emoji)) :test #'string=))
+
+(defun list-subgroups ()
+  (remove-duplicates (mapcar #'sixth (load-emoji)) :test #'string=))
