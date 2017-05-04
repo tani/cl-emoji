@@ -66,10 +66,10 @@ THE SOFTWARE.
   (loop for r in (load-emoji) if (funcall test value (getf r key)) collect r))
 
 (defun codepoint (code)
-  (first (emoji-apropos :codepoint code :test #'equalp)))
+  (getf (emoji-apropos :codepoint code :test #'equalp) :characters))
 
 (defun name (name)
-  (first (emoji-apropos :name name :test #'string=)))
+  (getf (emoji-apropos :name name :test #'string=) :characters))
 
 (defun annotation (annot)
   (emoji-apropos-list
