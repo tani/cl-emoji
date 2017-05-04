@@ -35,6 +35,7 @@ THE SOFTWARE.
    group-apropos
    subgroup-apropos
    annotation-apropos
+   with-emoji-list
    +versions+
    *current-version*))
 (in-package #:cl-emoji)
@@ -109,3 +110,7 @@ THE SOFTWARE.
 	    (remove-duplicates
 	     (remove-if-not test result)
 	     :test #'string=))))
+
+(defmacro with-emoji-list ((emoji-list-var) &body body)
+  `(let ((,emoji-list-var (load-emoji)))
+     ,@body))
