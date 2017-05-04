@@ -13,7 +13,7 @@
   (let ((emoji-list (read s)))
     (plan (+ 6 (length emoji-list)))
     (dolist (u emoji-list)
-      (is (length u) 6))
+      (is (length u) 12))
     (is "😀" (emoji:codepoint '("U+1F600")))
     (is "😁" (emoji:name "grinning face with smiling eyes"))
     (ok (< 0 (length (emoji:annotation "blue"))))
