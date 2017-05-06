@@ -35,6 +35,7 @@ THE SOFTWARE.
    group-apropos
    subgroup-apropos
    annotation-apropos
+   with-emoji-list
    +versions+
    *current-version*))
 (in-package #:cl-emoji)
@@ -65,10 +66,10 @@ THE SOFTWARE.
   (remove-if-not (lambda (r) (funcall test value (getf r key))) (load-emoji)))
 
 (defun codepoint (code)
-  (first (emoji-apropos :codepoint code :test #'equalp)))
+  (getf (emoji-apropos :codepoint code :test #'equalp) :characters))
 
 (defun name (name)
-  (first (emoji-apropos :name name :test #'string=)))
+  (getf (emoji-apropos :name name :test #'string=) :characters))
 
 (defun annotation (annot)
   (emoji-apropos-list
@@ -109,3 +110,7 @@ THE SOFTWARE.
 	    (remove-duplicates
 	     (remove-if-not test result)
 	     :test #'string=))))
+
+(defmacro with-emoji-list ((emoji-list-var) &body body)
+  `(let ((,emoji-list-var (load-emoji)))
+     ,@body))
