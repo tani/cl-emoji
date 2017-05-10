@@ -5,7 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 
 #|
-Copyright (c) <year> <name>
+Copyright (c) TANIGUCHI Masaya
 
 This software is released under the MIT license:
 
@@ -230,10 +230,10 @@ This \"Data File\" is licensed under Unicode License.
     (format t *copyright-template*
             (emoji-test-url emoji-version)
             (annotation-url cldr-version))
-    (print (mapcar (lambda (e) (list (emoji-characters e)
-                                     (emoji-codepoint e)
-                                     (emoji-name e)
-                                     (emoji-annotation e)
-                                     (emoji-group e)
-                                     (emoji-subgroup e)))
+    (print (mapcar (lambda (e) (list :characters (emoji-characters e)
+                                     :codepoint (emoji-codepoint e)
+                                     :name (emoji-name e)
+                                     :annotation (emoji-annotation e)
+                                     :group (emoji-group e)
+                                     :subgroup (emoji-subgroup e)))
                    emoji))))
