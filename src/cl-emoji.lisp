@@ -26,7 +26,18 @@ THE SOFTWARE.
 (defpackage #:cl-emoji
   (:use #:cl)
   (:nicknames #:emoji)
-  (:export code name annot group subgroup +versions+ *current-version*))
+  (:export
+   codepoint
+   name
+   annotation
+   group
+   subgroup
+   group-apropos
+   subgroup-apropos
+   annotation-apropos
+   with-emoji-list
+   +versions+
+   *current-version*))
 (in-package #:cl-emoji)
 
 (defvar +versions+ '("4.0_release-30"
@@ -35,30 +46,71 @@ THE SOFTWARE.
 
 (defun load-emoji ()
   (let ((emoji-list-path (asdf:system-relative-pathname
-                          :cl-emoji (pathname (format nil "data/emoji_~a.lisp"
-                                                      *current-version*)))))
+			  :cl-emoji (pathname (format nil "data/emoji_~a.lisp"
+						      *current-version*)))))
     (with-open-file (s emoji-list-path)
       (read s))))
 
-(defun code (code)
-  (first (find-if (lambda (c) (equalp code (second c)))
-                  (load-emoji))))
+(defun bind1 (function &rest args1)
+  (lambda (&rest args2)
+    (apply function (append args1 args2))))
+
+(defun bind2 (function &rest args2)
+  (lambda (&rest args1)
+    (apply function (append args1 args2))))
+
+(defun emoji-apropos (key value &key test)
+  (find-if (lambda (r) (funcall test value (getf r key))) (load-emoji)))
+
+(defun emoji-apropos-list (key value &key test)
+  (remove-if-not (lambda (r) (funcall test value (getf r key))) (load-emoji)))
+
+(defun codepoint (code)
+  (getf (emoji-apropos :codepoint code :test #'equalp) :characters))
 
 (defun name (name)
-  (first (find-if (lambda (n) (string= name (third n)))
-                  (load-emoji))))
+  (getf (emoji-apropos :name name :test #'string=) :characters))
 
-(defun annot (annot)
-  (loop for a in (load-emoji)
-        if (member annot (fourth a) :test #'string=)
-        collect a))
+(defun annotation (annot)
+  (emoji-apropos-list
+   :annotation annot
+   :test (bind2 #'member :test #'string=)))
 
 (defun group (group)
-  (loop for g in (load-emoji)
-        if (string= group (fifth g))
-        collect g))
+  (emoji-apropos-list
+   :group group
+   :test #'string=))
 
 (defun subgroup (subgroup)
-  (loop for sg in (load-emoji)
-        if (string= subgroup (sixth sg))
-        collect sg))
+  (emoji-apropos-list
+   :subgroup subgroup
+   :test #'string=))
+
+(defun group-apropos (keyword)
+  (let ((filter (bind2 #'getf :group))
+	(result (emoji-apropos-list :group keyword :test #'search)))
+    (format t "~{~a~%~}"
+	    (remove-duplicates
+	     (mapcar filter result)
+	     :test #'string=))))
+
+(defun subgroup-apropos (keyword)
+  (let ((filter (bind2 #'getf :subgroup))
+	(result (emoji-apropos-list :subgroup keyword :test #'search)))
+    (format t "~{~a~%~}"
+	    (remove-duplicates
+	     (mapcar filter result)
+	     :test #'string=))))
+
+(defun annotation-apropos (keyword)
+  (let* ((filter (bind2 #'getf :annotation))
+	 (test   (bind1 #'search keyword))
+	 (result (apply #'append (mapcar filter (load-emoji)))))
+    (format t "~{~a~%~}"
+	    (remove-duplicates
+	     (remove-if-not test result)
+	     :test #'string=))))
+
+(defmacro with-emoji-list ((emoji-list-var) &body body)
+  `(let ((,emoji-list-var (load-emoji)))
+     ,@body))
