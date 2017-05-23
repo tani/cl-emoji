@@ -6,7 +6,7 @@ cl-emoji provides the Unicode emoji characters
 ## :boom: Usage
 
 ```lisp
-(ql:quicklaod :cl-emoji)
+(ql:quickload :cl-emoji)
 (emoji:codepoint '("U+1F600"))
 => "😀"
 (emoji:name "grinning face")
