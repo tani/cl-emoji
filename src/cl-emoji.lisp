@@ -42,7 +42,7 @@ THE SOFTWARE.
 
 (defvar +versions+ '("4.0_release-30"
                      "5.0_release-31"))
-(defvar *current-version* "4.0_release-30")
+(defvar *current-version* "5.0_release-31")
 
 (defun load-emoji ()
   (let ((emoji-list-path (asdf:system-relative-pathname
