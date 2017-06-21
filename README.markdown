@@ -3,6 +3,8 @@ cl-emoji provides the Unicode emoji characters
 
 :smile: :heart_eyes: :scream: :alien: :fire: :zzz: :hand:
 
+cl-emoji is able to treat Emoji 5.0 defined in Unicode 10.0! (ex. UFO; https://emojipedia.org/flying-saucer/)
+
 ## :boom: Usage
 
 ```lisp
