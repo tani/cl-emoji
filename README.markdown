@@ -15,6 +15,10 @@ cl-emoji is able to treat Emoji 5.0 defined in Unicode 10.0! (ex. UFO; https://e
 => "😀"
 (emoji:annotation "face")
 => (("😀" "U+1F600" "grinning face" ("face" "grin" "person")) ...)
+
+;; We can also get emoji with slack-like string
+(emoji:alpha-code ":grin:")
+=> "😁"
 ```
 
 ```lisp
