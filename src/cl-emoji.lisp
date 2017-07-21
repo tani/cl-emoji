@@ -29,6 +29,7 @@ THE SOFTWARE.
   (:export
    codepoint
    name
+   alpha-code
    annotation
    group
    subgroup
@@ -70,6 +71,9 @@ THE SOFTWARE.
 
 (defun name (name)
   (getf (emoji-apropos :name name :test #'string=) :characters))
+
+(defun alpha-code (alpha-code)
+  (getf (emoji-apropos :alpha-code alpha-code :test #'string=) :characters))
 
 (defun annotation (annot)
   (emoji-apropos-list
