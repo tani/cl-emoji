@@ -32,13 +32,14 @@ THE SOFTWARE.
                 :cxml
                 :dexador
                 :flexi-streams
+                :jonathan
                 :split-sequence
                 :trivial-gray-streams)
               :silent t)
 
 
 (defstruct emoji
-  codepoint name characters group subgroup annotation)
+  codepoint name alpha-code characters group subgroup annotation)
 
 ;;;; emoji
 
@@ -246,7 +247,8 @@ This \"Data File\" is licensed under Unicode License.
   (let* ((emoji-version (nth 0 argv))
          (cldr-version (nth 1 argv))
          (emoji (retrieve-emoji-data emoji-version))
-         (annotation (retrieve-emoji-annotation cldr-version)))
+         (annotation (retrieve-emoji-annotation cldr-version))
+         (alpha-code (retrieve-emoji-alpha-code "master")))
     (loop
        :for annot :in annotation
        :do (let ((e (find (annotation-character annot) emoji
@@ -254,12 +256,20 @@ This \"Data File\" is licensed under Unicode License.
                           :test #'string=)))
              (when e
                (setf (emoji-annotation e) (annotation-annotation annot)))))
+    (loop
+       :for acode :in alpha-code
+       :do (let ((e (find (getf acode :name) emoji
+                          :key #'emoji-name
+                          :test #'string=)))
+             (when e
+               (setf (emoji-alpha-code e) (getf acode :alpha-code)))))
     (format t *copyright-template*
             (emoji-test-url emoji-version)
             (annotation-url cldr-version))
     (print (mapcar (lambda (e) (list :characters (emoji-characters e)
                                      :codepoint (emoji-codepoint e)
                                      :name (emoji-name e)
+                                     :alpha-code (emoji-alpha-code e)
                                      :annotation (emoji-annotation e)
                                      :group (emoji-group e)
                                      :subgroup (emoji-subgroup e)))
