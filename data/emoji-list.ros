@@ -162,15 +162,15 @@ THE SOFTWARE.
              (declare (ignore pubid))
              (flex:make-in-memory-input-stream
               (dex:get (format nil "~a/~a"
-                               (subseq url 0 (position #\/ url :from-end t ))
+                               (subseq url 0 (position #\/ url :from-end t))
                                sysid)
                        :force-binary t))))
       (loop
          :for node :across (dom:get-elements-by-tag-name
-                                  (cxml:parse (dex:get url)
-                                              (cxml-dom:make-dom-builder)
-                                              :entity-resolver #'resolver)
-                                  "annotation")
+                            (cxml:parse (dex:get url)
+                                        (cxml-dom:make-dom-builder)
+                                        :entity-resolver #'resolver)
+                            "annotation")
          :when (shortname-node-p node)
          :do (push (shortname node) shortname)
          :when (annotation-node-p node)
