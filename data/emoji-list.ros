@@ -177,6 +177,33 @@ THE SOFTWARE.
          :do (push (annotation node) annotation)))
     annotation))
 
+;;;; emojione
+
+;;; emojione is a project of EmojiOne Inc., that provides a set of emoji glyph.
+;;; emojione also provies Emoji Alpha Codes, this is a set of shortname of emoji
+;;; to directly input emoji without emoji keyboad, emoji picker nor pasting.
+
+;;; For detail, see "Emoji Alpha Codes" page.
+;;; --- https://github.com/emojione/emojione/tree/master/extras/alpha-codes
+
+(defvar *emojione-repos-url* "https://raw.githubusercontent.com/emojione/emojione")
+(defvar *emojione-branch* "master")
+(defvar *emojione-alpha-codes* "extras/alpha-codes/eac.json")
+
+(defun alpha-code-url (&optional (branch-name *emojione-branch*))
+  (format nil "~a/~a/~a"
+          *emojione-repos-url*
+          branch-name
+          *emojione-alpha-codes*))
+
+(defun retrieve-emoji-alpha-code (branch-name)
+  (let ((url (alpha-code-url branch-name)))
+    (mapcar (lambda (e) (list :name (getf e :|name|)
+                              :alpha-code (getf e :|alpha_code|)))
+            (remove-if #'symbolp
+                       (jojo:parse (dex:get url))))))
+
+
 (defvar *copyright-template*
   "#|
 Copyright 1991-2017 Unicode, Inc.
