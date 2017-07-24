@@ -32,13 +32,14 @@ THE SOFTWARE.
                 :cxml
                 :dexador
                 :flexi-streams
+                :jonathan
                 :split-sequence
                 :trivial-gray-streams)
               :silent t)
 
 
 (defstruct emoji
-  codepoint name characters group subgroup annotation)
+  codepoint name alpha-code characters group subgroup annotation)
 
 ;;;; emoji
 
@@ -162,20 +163,47 @@ THE SOFTWARE.
              (declare (ignore pubid))
              (flex:make-in-memory-input-stream
               (dex:get (format nil "~a/~a"
-                               (subseq url 0 (position #\/ url :from-end t ))
+                               (subseq url 0 (position #\/ url :from-end t))
                                sysid)
                        :force-binary t))))
       (loop
          :for node :across (dom:get-elements-by-tag-name
-                                  (cxml:parse (dex:get url)
-                                              (cxml-dom:make-dom-builder)
-                                              :entity-resolver #'resolver)
-                                  "annotation")
+                            (cxml:parse (dex:get url)
+                                        (cxml-dom:make-dom-builder)
+                                        :entity-resolver #'resolver)
+                            "annotation")
          :when (shortname-node-p node)
          :do (push (shortname node) shortname)
          :when (annotation-node-p node)
          :do (push (annotation node) annotation)))
     annotation))
+
+;;;; emojione
+
+;;; emojione is a project of EmojiOne Inc., that provides a set of emoji glyph.
+;;; emojione also provies Emoji Alpha Codes, this is a set of shortname of emoji
+;;; to directly input emoji without emoji keyboad, emoji picker nor pasting.
+
+;;; For detail, see "Emoji Alpha Codes" page.
+;;; --- https://github.com/emojione/emojione/tree/master/extras/alpha-codes
+
+(defvar *emojione-repos-url* "https://raw.githubusercontent.com/emojione/emojione")
+(defvar *emojione-branch* "master")
+(defvar *emojione-alpha-codes* "extras/alpha-codes/eac.json")
+
+(defun alpha-code-url (&optional (branch-name *emojione-branch*))
+  (format nil "~a/~a/~a"
+          *emojione-repos-url*
+          branch-name
+          *emojione-alpha-codes*))
+
+(defun retrieve-emoji-alpha-code (branch-name)
+  (let ((url (alpha-code-url branch-name)))
+    (mapcar (lambda (e) (list :name (getf e :|name|)
+                              :alpha-code (getf e :|alpha_code|)))
+            (remove-if #'symbolp
+                       (jojo:parse (dex:get url))))))
+
 
 (defvar *copyright-template*
   "#|
@@ -219,7 +247,8 @@ This \"Data File\" is licensed under Unicode License.
   (let* ((emoji-version (nth 0 argv))
          (cldr-version (nth 1 argv))
          (emoji (retrieve-emoji-data emoji-version))
-         (annotation (retrieve-emoji-annotation cldr-version)))
+         (annotation (retrieve-emoji-annotation cldr-version))
+         (alpha-code (retrieve-emoji-alpha-code "master")))
     (loop
        :for annot :in annotation
        :do (let ((e (find (annotation-character annot) emoji
@@ -227,12 +256,20 @@ This \"Data File\" is licensed under Unicode License.
                           :test #'string=)))
              (when e
                (setf (emoji-annotation e) (annotation-annotation annot)))))
+    (loop
+       :for acode :in alpha-code
+       :do (let ((e (find (getf acode :name) emoji
+                          :key #'emoji-name
+                          :test #'string=)))
+             (when e
+               (setf (emoji-alpha-code e) (getf acode :alpha-code)))))
     (format t *copyright-template*
             (emoji-test-url emoji-version)
             (annotation-url cldr-version))
     (print (mapcar (lambda (e) (list :characters (emoji-characters e)
                                      :codepoint (emoji-codepoint e)
                                      :name (emoji-name e)
+                                     :alpha-code (emoji-alpha-code e)
                                      :annotation (emoji-annotation e)
                                      :group (emoji-group e)
                                      :subgroup (emoji-subgroup e)))
