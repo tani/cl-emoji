@@ -74,16 +74,16 @@ CL-USER> (emoji:annotation-apropos "bazz")
 
 ```shell
 $ cd ~/common-lisp
-$ git clone git://github.com/ta2gch/cl-emoji
+$ git clone git://github.com/asciian/cl-emoji
 ```
 
 ## :laughing: Author
 
-* Masaya TANIGUCHI (ta2gch@gmail.com)
+* Masaya TANIGUCHI (asciian@gmail.com)
 
 ## :ok_hand: Copyright
 
-Copyright (c) 2015 Masaya TANIGUCHI (ta2gch@gmail.com)
+Copyright (c) 2015 Masaya TANIGUCHI (asciian@gmail.com)
 
 * src/cl-emoji.lisp is licensed under the MIT License
 * data/emoji-list.lisp is licensed under the Unicoded License

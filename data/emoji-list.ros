@@ -5,7 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 
 #|
-Copyright (c) TANIGUCHI Masaya
+Copyright (c) asciian
 
 This software is released under the MIT license:
 

@@ -1,12 +1,12 @@
 #|
   This file is a part of cl-emoji project.
-  Copyright (c) 2015 Masaya TANIGUCHI (ta2gch@gmail.com)
+  Copyright (c) 2015 Masaya TANIGUCHI (asciian@gmail.com)
 |#
 
 #|
   cl-emoji provides the Unicode emoji characters
 
-  Author: Masaya TANIGUCHI (ta2gch@gmail.com)
+  Author: Masaya TANIGUCHI (asciian@gmail.com)
 |#
 
 (in-package :cl-user)
