@@ -5,7 +5,7 @@ Sources of emoji and annotations are bellow:
 - http://www.unicode.org/Public/emoji/4.0/emoji-test.txt
 - http://unicode.org/repos/cldr/tags/release-30/common/annotations/en.xml
 
-This file is converted for Common Lisp by ./emoji-list.ros (Masaya TANIGUCHI)
+This file is converted for Common Lisp by ./emoji-list.ros (asciian)
 This "Data File" is licensed under Unicode License.
 |#
 

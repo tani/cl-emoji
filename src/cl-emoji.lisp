@@ -1,5 +1,5 @@
 #|
-Copyright (c) 2015 Masaya TANIGUCHI
+Copyright (c) 2015 asciian
 
 This software is released under the MIT license:
 

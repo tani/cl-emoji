@@ -1,12 +1,12 @@
 #|
   This file is a part of cl-emoji project.
-  Copyright (c) 2015 Masaya TANIGUCHI (asciian@gmail.com)
+  Copyright (c) 2015 asciian (asciian@outlook.jp.com)
 |#
 
 #|
   cl-emoji provides the Unicode emoji characters
 
-  Author: Masaya TANIGUCHI (asciian@gmail.com)
+  Author: asciian (asciian@outlook.jp.com)
 |#
 
 (in-package :cl-user)
@@ -16,7 +16,7 @@
 
 (defsystem cl-emoji
   :version "0.2"
-  :author "Masaya TANIGUCHI"
+  :author "asciian"
   :license "MIT"
   :depends-on ()
   :components ((:module "src"

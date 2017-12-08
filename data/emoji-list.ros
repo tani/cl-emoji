@@ -213,7 +213,7 @@ Sources of emoji and annotations are bellow:
 - ~a
 - ~a
 
-This file is converted for Common Lisp by ./emoji-list.ros (Masaya TANIGUCHI)
+This file is converted for Common Lisp by ./emoji-list.ros (asciian)
 This \"Data File\" is licensed under Unicode License.
 |#
 
