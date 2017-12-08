@@ -79,11 +79,11 @@ $ git clone git://github.com/asciian/cl-emoji
 
 ## :laughing: Author
 
-* asciian (asciian@outlook.jp.com)
+* asciian (asciian@outlook.jp)
 
 ## :ok_hand: Copyright
 
-Copyright (c) 2015 asciian (asciian@outlook.jp.com)
+Copyright (c) 2015 asciian (asciian@outlook.jp)
 
 * src/cl-emoji.lisp is licensed under the MIT License
 * data/emoji-list.lisp is licensed under the Unicoded License

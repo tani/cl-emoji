@@ -1,12 +1,12 @@
 #|
   This file is a part of cl-emoji project.
-  Copyright (c) 2015 asciian (asciian@outlook.jp.com)
+  Copyright (c) 2015 asciian (asciian@outlook.jp)
 |#
 
 #|
   cl-emoji provides the Unicode emoji characters
 
-  Author: asciian (asciian@outlook.jp.com)
+  Author: asciian (asciian@outlook.jp)
 |#
 
 (in-package :cl-user)

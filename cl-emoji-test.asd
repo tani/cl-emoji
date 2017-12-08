@@ -1,6 +1,6 @@
 #|
   This file is a part of cl-emoji project.
-  Copyright (c) 2015 asciian (asciian@outlook.jp.com)
+  Copyright (c) 2015 asciian (asciian@outlook.jp)
 |#
 
 (in-package :cl-user)
