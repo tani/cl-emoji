@@ -1,4 +1,4 @@
-# :smile: Cl-Emoji
+# :smile: Cl-Emoji [![Quicklisp](http://quickdocs.org/badge/cl-emoji.svg)](http://quickdocs.org/cl-emoji/)
 cl-emoji provides the Unicode emoji characters
 
 :smile: :heart_eyes: :scream: :alien: :fire: :zzz: :hand:
@@ -67,14 +67,6 @@ CL-USER> (emoji:subgroup-apropos "bar")
 
 CL-USER> (emoji:annotation-apropos "bazz")
 
-```
-
-
-## :fire: Installation
-
-```shell
-$ cd ~/common-lisp
-$ git clone git://github.com/asciian/cl-emoji
 ```
 
 ## :laughing: Author
