@@ -71,11 +71,11 @@ CL-USER> (emoji:annotation-apropos "bazz")
 
 ## :laughing: Author
 
-* asciian (asciian@outlook.jp)
+* Fernado Garcia Borges (fgborges@pm.me)
 
 ## :ok_hand: Copyright
 
-Copyright (c) 2015 asciian (asciian@outlook.jp)
+* Fernado Garcia Borges (fgborges@pm.me)
 
 * src/cl-emoji.lisp is licensed under the MIT License
 * data/emoji-list.lisp is licensed under the Unicoded License
